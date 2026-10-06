@@ -4,18 +4,27 @@ import type { PostRepository } from '../domain/post/repository.js'
 import type { PostService } from './types.js'
 
 export function createPostService(postRepository: PostRepository): PostService {
-    return {
-        getAllPosts(category?: string, take?: number) {
+    
+        async function getAllPosts(category?: string, take?: number): Promise<Post[]> {
             return postRepository.getAllPosts(category, take)
-        },
-
-        getPostById(id: number) {
-            return postRepository.getPostById(id)
-        },
-
-        createPost(postData: Omit<Post, 'id'>) {
-            return postRepository.createPost(postData)
         }
-    }
+
+        async function getPostById(id: number): Promise<Post | null> {
+            return postRepository.getPostById(id)
+        }
+
+        async function createPost(postData: Omit<Post, 'id'>): Promise<Post> {
+            const { title, content, author, category } = postData
+            let post = {
+                title: title,
+                content: content,
+                author: author,
+                category: category
+        }
+        return postRepository.createPost(postData)
+        }
+        
+
+    return { getAllPosts, getPostById, createPost }
 }
 
