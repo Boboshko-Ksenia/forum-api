@@ -23,11 +23,11 @@ export function createPostHandlers(postService: PostService) {
             req: Request<{}, {}, PostDTO>,
             res: Response
         ) => {
-            const { title, content, author, category } = req.body
-            if(!title || !content) {
-                return res.status(422).json({ message: "Title and content are required" })
+            const { name, content, author, category } = req.body
+            if(!name || !content) {
+                return res.status(422).json({ message: "Name and content are required" })
             }
-            const newPost = await postService.createPost({ title, content, author, category })
+            const newPost = await postService.createPost({ name, content, author, category })
             return res.status(201).json(newPost)
     }}}
 

@@ -14,9 +14,9 @@ export function createPostService(postRepository: PostRepository): PostService {
         }
 
         async function createPost(postData: Omit<Post, 'id'>): Promise<Post> {
-            const { title, content, author, category } = postData
+            const { name, content, author, category } = postData
             let post = {
-                title: title,
+                name: name,
                 content: content,
                 author: author,
                 category: category

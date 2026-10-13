@@ -14,13 +14,13 @@ export function createPostRepository(db: Database): PostRepository {
         if (take) {
             result = result.slice(0, take)
         }
-        return result
+        return result as unknown as Post[]
     }
     async function getPostById(id: number): Promise<Post | null> {
-        return db.orm.public.Post.where({ id }).first()
+        return db.orm.public.Post.where({ id }).first() as unknown as Post | null
     }
     async function createPost(post: Omit<Post, 'id'>): Promise<Post> {
-        return db.orm.public.Post.create(post)
+        return db.orm.public.Post.create(post as unknown as any) as unknown as Post
     }
     return { getAllPosts, getPostById, createPost }
 }    
