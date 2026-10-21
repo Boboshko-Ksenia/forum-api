@@ -1,7 +1,7 @@
 export interface PostDTO {
     id: number
-    title: string
+    name: string
     content: string
-    category: string
+    categoryId?: number
     author: string
 }

@@ -9,6 +9,6 @@ export function createPostRouter(postHandlers: ReturnType<typeof createPostHandl
     postRouter.get('/', postHandlers.getAllPostsHandler)
     postRouter.get('/:id', postHandlers.getPostByIdHandler)
     postRouter.post('/', postHandlers.createPostHandler)
-
+   
     return postRouter
 }

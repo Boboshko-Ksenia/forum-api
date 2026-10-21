@@ -13,15 +13,15 @@ export function createPostService(postRepository: PostRepository): PostService {
             return postRepository.getPostById(id)
         }
 
-        async function createPost(postData: Omit<Post, 'id'>): Promise<Post> {
-            const { title, content, author, category } = postData
+        async function createPost(postData: Omit<Post, 'id'> & { categoryId?: number }): Promise<Post> {
+            const { name, content, author, categoryId } = postData
             let post = {
-                title: title,
+                name: name,
                 content: content,
                 author: author,
-                category: category
+                categoryId: categoryId
         }
-        return postRepository.createPost(postData)
+        return postRepository.createPost(post)
         }
         
 
