@@ -3,5 +3,5 @@ export interface PostDTO {
     name: string
     content: string
     categoryId?: number
-    author: string
+    authorId: number
 }

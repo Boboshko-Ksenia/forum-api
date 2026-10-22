@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { createCategoryHandlers } from '../handlers/category.js'
+import type { createCategoryHandlers } from '../handlers/category/category.js'
 
 export function createCategoryRouter(categoryHandlers: ReturnType<typeof createCategoryHandlers>) {
     const categoryRouter = Router()

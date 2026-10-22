@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import type { CategoryService } from '../../services/types.js' 
+import type { CategoryService } from '../../../services/types.js' 
 import { error } from 'console'
 
 

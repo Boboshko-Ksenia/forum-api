@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { createPostHandlers } from '../handlers/post.js'
+import { createPostHandlers } from '../handlers/post/post.js'
 import type { PostService } from '../../services/types.js'
 
 
