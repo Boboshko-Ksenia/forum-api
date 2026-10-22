@@ -1,6 +1,6 @@
 import { error } from 'console'
-import type { PostService } from '../../services/types.js'
-import type { PostDTO } from '../dto/post.dto.js'
+import type { PostService } from '../../../services/types.js'
+import type { PostDTO } from '../../dto/post/post.dto.js'
 import type { Request, Response } from 'express'
 
 export function createPostHandlers(postService: PostService) {
@@ -27,12 +27,12 @@ export function createPostHandlers(postService: PostService) {
             req: Request<{}, {}, PostDTO>,
             res: Response
         ) => {
-            const { name, content, author, categoryId } = req.body
+            const { name, content, authorId, categoryId } = req.body
             if(!name || !content || !categoryId) {
                 return res.status(422).json({ message: "Name, content, and category ID are required" })
             }
             try {
-                const newPost = await postService.createPost({ name, content, author, categoryId } as any)
+                const newPost = await postService.createPost({ name, content, authorId, categoryId } as any)
                 return res.status(201).json(newPost)
             } catch (error: any) {
                 const errorMessage = 

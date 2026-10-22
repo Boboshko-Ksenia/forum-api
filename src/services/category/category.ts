@@ -1,6 +1,6 @@
-import type { Category } from "../domain/category/category.js"
-import type { CategoryRepository } from "../domain/category/repository.js"
-import type { CategoryService } from './types.js'
+import type { Category } from "../../domain/category/category.js"
+import type { CategoryRepository } from "../../domain/category/repository.js"
+import type { CategoryService } from '../types.js'
 export function createCategoryService(categoryRepository: CategoryRepository) {
     async function getAllCategories(): Promise<Category[]> {
         return categoryRepository.getAllCategories()

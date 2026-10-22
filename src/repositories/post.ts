@@ -9,8 +9,14 @@ export function createPostRepository(db: Database): PostRepository {
     
     
     async function getAllPosts(categoryName?: string, take?: number): Promise<Post[]> {
-        let query = db.orm.public.Post.include("category")
+        let query = db.orm.public.Post.include("category").include("author")
         let result = await query.all()
+        result.forEach((post: any) => {
+      if (post.author) {
+        const { passwordHash, ...safeAuthor } = post.author;
+        post.author = safeAuthor;
+      }
+    });
         if (categoryName) {
             result = result.filter(post => post.category?.name === categoryName)
         }
@@ -21,18 +27,27 @@ export function createPostRepository(db: Database): PostRepository {
     }
     async function getPostById(id: number): Promise<Post | null> {
         
-        const post = await db.orm.public.Post.include("category").where({ id }).first()
+        const post = await db.orm.public.Post.include("category").include("author").where({ id }).first()
+        if (post && (post as any).author) {
+            const { passwordHash, ...safeAuthor } = (post as any).author;
+            (post as any).author = safeAuthor;
+        }
         return post as unknown as Post | null
     }
-    async function createPost(post: Omit<Post, 'id'> & { categoryId?: number }): Promise<Post> {
+    async function createPost(post: Omit<Post, 'id'> & { categoryId?: number; authorId?: number }): Promise<Post> {
         try {
-            const { categoryId, ...fields} = post
+            const { categoryId, authorId, ...fields} = post
             const created = await db.orm.public.Post.create({
                 ...fields, 
-                categoryId: categoryId
+                categoryId: categoryId,
+                authorId: authorId,
             } as any)
             const postId = (created as any).id || (Array.isArray(created) ? created[0]?.id : undefined)
-            const fullPost = await db.orm.public.Post.include("category").where({ id: postId }).first()
+            const fullPost = await db.orm.public.Post.include("category").include("author").where({ id: postId }).first()
+            if (fullPost && (fullPost as any).author) {
+                const { passwordHash, ...safeAuthor } = (fullPost as any).author;
+                (fullPost as any).author = safeAuthor;
+            }
             return fullPost as unknown as Post
         } catch (error: any) {
             if (error instanceof Error && "sqlState" in error) {
