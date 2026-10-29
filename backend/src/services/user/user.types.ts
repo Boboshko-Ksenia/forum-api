@@ -11,13 +11,23 @@ export interface PasswordHasherContract {
 }
 
 export interface TokenSignerContract {
+    signRefreshToken(id: number): string
     signAccessToken: (userId: number) => string
 }
 
+export interface TokenVerifierContract {
+    verifyAccessToken: (token: string) => number,
+    verifyRefreshToken: (token: string) => number
+}
+
+export interface UserTokens {
+    accessToken: string,
+    refreshToken: string
+}
+
 export interface UserServiceContract {
-    register: (data: UserInput) => Promise<PublicUser>
-    login: (data: UserInput) => Promise<{
-        user: PublicUser,
-        token: string
-    }>
+    register: (data: UserInput) => Promise<PublicUser>,
+    login: (data: UserInput) => Promise<{user: PublicUser} & UserTokens>,
+    refresh: (refreshToken: string) => Promise<UserTokens>,
+    me: (id: number) => Promise<PublicUser>
 }
