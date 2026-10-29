@@ -6,7 +6,8 @@ export function createUserRepository(db: Database): UserRepositoryContract{
     return {
         async createUser(data) {
             try {
-                return await db.orm.public.User.create(data);
+                const newUser = await db.orm.public.User.create(data);
+                return newUser
 
                  
             }
@@ -21,6 +22,9 @@ export function createUserRepository(db: Database): UserRepositoryContract{
 
         async getUserByEmail(email) {
             return db.orm.public.User.where({ email }).first();
-        }
+        },
+        async getUserById(id) {
+            return db.orm.public.User.where({ id }).first();
+        },
     }
 }

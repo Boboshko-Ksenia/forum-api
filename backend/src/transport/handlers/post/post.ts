@@ -27,7 +27,8 @@ export function createPostHandlers(postService: PostService) {
             req: Request<{}, {}, PostDTO>,
             res: Response
         ) => {
-            const { name, content, authorId, categoryId } = req.body
+            const { name, content, categoryId } = req.body
+            const authorId = (res as any).locals.userId
             if(!name || !content || !categoryId) {
                 return res.status(422).json({ message: "Name, content, and category ID are required" })
             }
