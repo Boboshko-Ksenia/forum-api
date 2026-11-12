@@ -126,3 +126,57 @@ header h1 {
 .status-message.error {
   color: #e53e3e;
 }
+
+.auth-container {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin: 24px auto;
+  max-width: 800px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  width: 320px;
+}
+
+.auth-form h3 {
+  margin: 0 0 8px 0;
+  text-align: center;
+  color: #333;
+}
+
+.auth-input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.auth-button {
+  padding: 10px;
+  background-color: #646cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-button:hover {
+  background-color: #535bf2;
+}

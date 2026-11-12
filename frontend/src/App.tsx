@@ -1,6 +1,8 @@
 import { useGetPostsQuery } from './api/baseApi';
 import { Header } from './components/Header';
 import { PostList } from './components/PostList';
+import { RegisterForm } from './components/RegisterForm';
+import { LoginForm } from './components/LoginForm';
 import './App.css';
 
 function App() {
@@ -20,6 +22,10 @@ function App() {
         title="Forum" 
         description="List of posts" 
       />
+      <div className="auth-container">
+        <RegisterForm />
+        <LoginForm />
+      </div>
 
       {!posts || posts.length === 0 ? (
         <h2>No posts found</h2>
