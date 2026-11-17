@@ -21,4 +21,14 @@ model User {
   email        String   @unique
   passwordHash String
   posts        Post[]
+  refreshSession RefreshSession[]
+}
+
+model RefreshSession{
+  id Int @id @default(autoincrement())
+  tokenHash String @unique
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  createdAt String
+  expiresAt String
 }

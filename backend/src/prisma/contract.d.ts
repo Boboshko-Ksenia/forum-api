@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'eb27202fad06bf2d49fae8040577a04f8821deadbe0d9f287ea97cdd1e0380ae'>;
+  StorageHashBase<'0bb298c76d8961c602c7b5a1979441c976d00dab57bd0e71e0dd2913ab90b1d3'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -252,6 +252,13 @@ export type FieldOutputTypes = {
       readonly authorId: CodecTypes['pg/int4@1']['output'];
       readonly categoryId: CodecTypes['pg/int4@1']['output'];
     };
+    readonly RefreshSession: {
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'];
+      readonly createdAt: CodecTypes['pg/text@1']['output'];
+      readonly expiresAt: CodecTypes['pg/text@1']['output'];
+    };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -271,6 +278,13 @@ export type FieldInputTypes = {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly authorId: CodecTypes['pg/int4@1']['input'];
       readonly categoryId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly RefreshSession: {
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'];
+      readonly createdAt: CodecTypes['pg/text@1']['input'];
+      readonly expiresAt: CodecTypes['pg/text@1']['input'];
     };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -292,6 +306,13 @@ export type StorageColumnTypes = {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
     };
+    readonly refreshSession: {
+      readonly createdAt: CodecTypes['pg/text@1']['output'];
+      readonly expiresAt: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly tokenHash: CodecTypes['pg/text@1']['output'];
+      readonly userId: CodecTypes['pg/int4@1']['output'];
+    };
     readonly user: {
       readonly email: CodecTypes['pg/text@1']['output'];
       readonly id: CodecTypes['pg/int4@1']['output'];
@@ -311,6 +332,13 @@ export type StorageColumnInputTypes = {
       readonly content: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly name: CodecTypes['pg/text@1']['input'];
+    };
+    readonly refreshSession: {
+      readonly createdAt: CodecTypes['pg/text@1']['input'];
+      readonly expiresAt: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly tokenHash: CodecTypes['pg/text@1']['input'];
+      readonly userId: CodecTypes['pg/int4@1']['input'];
     };
     readonly user: {
       readonly email: CodecTypes['pg/text@1']['input'];
@@ -342,7 +370,17 @@ export namespace Models {
     email: CodecTypes['pg/text@1']['output'];
     passwordHash: CodecTypes['pg/text@1']['output'];
     posts: public_Post[];
-    readonly [RelationKeys]?: 'posts';
+    refreshSession: public_RefreshSession[];
+    readonly [RelationKeys]?: 'posts' | 'refreshSession';
+  };
+  export type public_RefreshSession = {
+    id: CodecTypes['pg/int4@1']['output'];
+    tokenHash: CodecTypes['pg/text@1']['output'];
+    userId: CodecTypes['pg/int4@1']['output'];
+    createdAt: CodecTypes['pg/text@1']['output'];
+    expiresAt: CodecTypes['pg/text@1']['output'];
+    user: public_User;
+    readonly [RelationKeys]?: 'user';
   };
 }
 
@@ -351,6 +389,7 @@ export declare const models: {
     Post: Models.public_Post;
     Category: Models.public_Category;
     User: Models.public_User;
+    RefreshSession: Models.public_RefreshSession;
   };
 };
 
@@ -469,6 +508,63 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly refreshSession: {
+              columns: {
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly tokenHash: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly userId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly createdAt: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly expiresAt: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [{ readonly columns: readonly ['tokenHash'] }];
+              indexes: readonly [
+                {
+                  readonly name: 'refreshSession_userId_idx_a489d58a';
+                  readonly prefix: 'refreshSession_userId_idx';
+                  readonly columns: readonly ['userId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'refreshSession';
+                    readonly columns: readonly ['userId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'user';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly user: {
               columns: {
                 readonly id: {
@@ -510,6 +606,10 @@ type ContractBase = Omit<
     readonly post: { readonly namespace: 'public' & NamespaceId; readonly model: 'Post' };
     readonly category: { readonly namespace: 'public' & NamespaceId; readonly model: 'Category' };
     readonly user: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+    readonly refreshSession: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'RefreshSession';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -603,6 +703,52 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly RefreshSession: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly tokenHash: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly expiresAt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly user: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['userId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'refreshSession';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly tokenHash: { readonly column: 'tokenHash' };
+                readonly userId: { readonly column: 'userId' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly expiresAt: { readonly column: 'expiresAt' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly id: {
@@ -625,6 +771,17 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['authorId'];
+                };
+              };
+              readonly refreshSession: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'RefreshSession';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['userId'];
                 };
               };
             };

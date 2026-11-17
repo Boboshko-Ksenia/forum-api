@@ -1,4 +1,9 @@
+// import { Temporal } from "@js-temporal/polyfill";
+// if (!(globalThis as any).Temporal) {
+//   (globalThis as any).Temporal = Temporal;
+// }
 import express from 'express'
+
 import cookieParser from 'cookie-parser'
 import { createPostRepository } from './repositories/post.js'
 import { createPostService } from './services/post/post.js'
@@ -13,10 +18,11 @@ import { createUserRepository } from "./repositories/user.js";
 import { createUserService } from "./services/user/user.js";
 import { createUserHandler } from "./transport/handlers/user/user.js";
 import { hashPassword, verifyPassword } from "./lib/password.js";
-import { signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken } from "./lib/jwt.js";
+import { hashRefreshToken, signAccessToken, signRefreshToken, verifyAccessToken, verifyRefreshToken } from "./lib/jwt.js";
 import { db } from './prisma/db.js'
 import cors from 'cors';
-import { createRequireAuth } from "./transport/middlewares/require-auth.js";
+import { createRefreshSessionRepository } from './repositories/refresh-session.js' 
+import { createRequireAuth } from './transport/middlewares/require-auth.js'
 
 
 const app = express()
@@ -45,19 +51,24 @@ const categoryRouter = createCategoryRouter(categoryHandlers)
 app.use('/categories', categoryRouter)
 
 const userRepository = createUserRepository(db);
-const userService = createUserService(userRepository, 
-    { 
-        hashPassword: hashPassword, 
-        verifyPassword: verifyPassword
-    }, 
-    { 
+const userService = createUserService(
+    userRepository,
+    {
+        hashPassword: hashPassword,
+        verifyPassword: verifyPassword,
+    },
+    {
         signAccessToken: signAccessToken,
-        signRefreshToken: signRefreshToken
+        signRefreshToken: signRefreshToken,
     },
     {
         verifyAccessToken: verifyAccessToken,
         verifyRefreshToken: verifyRefreshToken,
-    }
+    },
+    
+    createRefreshSessionRepository(db), 
+    { hashRefreshToken: hashRefreshToken }
+    
 );
 const userHandlers = createUserHandler(userService);
 const requireAuth = createRequireAuth(verifyAccessToken);
