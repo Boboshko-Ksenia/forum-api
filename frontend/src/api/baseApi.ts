@@ -10,9 +10,9 @@ interface RegisterRequest {
   password: string;
 }
 interface AuthResponse {
-  id?: number;
-  email?: string;
-  token?: string;
+  id: number;
+  email: string;
+
 }
 
 interface AuthRequest {
@@ -23,8 +23,10 @@ interface AuthRequest {
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ 
-    baseUrl: 'http://localhost:8000' 
+    baseUrl: 'http://localhost:8000',
+    credentials: "include" 
   }),
+  tagTypes: ['Me'],
   endpoints: (builder) => ({
     getPosts: builder.query<Post[], void>({query: () => '/posts'}),
     register: builder.mutation<RegisterResponse, RegisterRequest>({
@@ -32,7 +34,8 @@ export const baseApi = createApi({
         url: '/user/register',
         method: 'POST',
         body: data,
-      }) 
+      }),
+      invalidatesTags: ['Me']
     }),
     login: builder.mutation<AuthResponse, AuthRequest>({
       query: (data) => ({
@@ -40,8 +43,13 @@ export const baseApi = createApi({
         method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['Me']
     }),
+    getMe: builder.query<AuthResponse, void>({
+            query: () => '/user/me',
+            providesTags: ['Me']
   }),
-});
+})
+})
 
-export const { useGetPostsQuery, useRegisterMutation, useLoginMutation } = baseApi;
+export const { useGetPostsQuery, useRegisterMutation, useLoginMutation, useGetMeQuery } = baseApi;
