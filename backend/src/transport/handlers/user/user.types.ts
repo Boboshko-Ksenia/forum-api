@@ -4,13 +4,18 @@ import type { ParamsDictionary } from "express-serve-static-core"
 import type { ParsedQs } from "qs"
 
 export interface UserHandlerContract{
-    refresh(arg0: string, refresh: any): unknown
-    me(arg0: string, requireAuth: RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>, me: any): unknown
+    [x: string]: RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+    refresh: RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
+    me: RequestHandler<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
     register: (
         req: Request<{}, {}, UserCredentialsBody>,
         res: Response,
     ) => Promise<void>
     login: (
+        req: Request<{}, {}, UserCredentialsBody>,
+        res: Response,
+    ) => Promise<void>
+    logout: (
         req: Request<{}, {}, UserCredentialsBody>,
         res: Response,
     ) => Promise<void>

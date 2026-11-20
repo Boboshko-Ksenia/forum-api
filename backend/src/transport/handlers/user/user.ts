@@ -28,6 +28,7 @@ export function createUserHandler(
 ): UserHandlerContract & {
   refresh: UserHandlerContract["login"];
   me: UserHandlerContract["login"];
+  logout: UserHandlerContract["login"];
 } {
   return {
     async register(req, res) {
@@ -69,6 +70,7 @@ export function createUserHandler(
           accessToken: result.accessToken, 
           refreshToken: result.refreshToken 
         })
+        res.status(200).json(result.user);
         // res.cookie("accessToken", result.token, {
         //   httpOnly: true,
         //   sameSite: "lax",
@@ -77,20 +79,37 @@ export function createUserHandler(
         //   path: "/",
         // });
 
-        res.status(200).json(result.user);
+        
       } catch (error: any) {
-        if (
-            error instanceof Error &&
-            (error.message.includes("INVALID CREDENTIALS") ||
-            error.message.includes("Invalid") ||
-            error.message.includes("not found") ||
-            error.message.includes("credentials"))
-        ) {
-          res.status(401).json({ message: "Invalid email or password!" });
+          console.error("CRITICAL ERROR IN LOGIN/REGISTER:", error); 
+  
+        if (error instanceof Error && error.message === "INVALID_CREDENTIALS") {
+          res.status(401).json({ message: "Invalid credentials" });
+          return;
+        }
+
+        if (error instanceof Error && (
+          error.message.includes("already used") || 
+          error.message.includes("unique constraint")
+        )) {
+          res.status(409).json({ message: "Email is already used!" });
           return;
         }
 
         res.status(500).json({ message: "Internal server error" });
+
+        // if (
+        //     error instanceof Error &&
+        //     (error.message.includes("INVALID CREDENTIALS") ||
+        //     error.message.includes("Invalid") ||
+        //     error.message.includes("not found") ||
+        //     error.message.includes("credentials"))
+        // ) {
+        //   res.status(401).json({ message: "Invalid email or password!" });
+        //   return;
+        // }
+
+        // res.status(500).json({ message: "Internal server error" });
       }
     },
     async refresh(req, res){
@@ -122,7 +141,19 @@ export function createUserHandler(
             catch(error) {
                 (res as any).status(500).json({message: "Internal server error!"})
             }
+        },
+      async logout(req, res) {
+        try {
+          const refreshToken = (req as any).cookies?.refreshToken;
+          if (refreshToken) {
+            await service.logout(refreshToken);
+          }
+          res.clearCookie('accessToken');
+          res.clearCookie('refreshToken');
+          res.status(200).json({ message: 'Logged out successfully' });
+        } catch (error) {
+          res.status(500).json({ message: 'Internal Server Error' });
         }
-            
+}      
     }
 }

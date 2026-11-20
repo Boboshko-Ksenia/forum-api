@@ -1,4 +1,5 @@
 import { useForm } from 'react-hook-form';
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import { useLoginMutation } from '../api/baseApi';
 
 interface LoginFormValues {
@@ -7,38 +8,66 @@ interface LoginFormValues {
 }
 
 export function LoginForm() {
-  const { register, handleSubmit, reset } = useForm<LoginFormValues>();
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    mode: 'onChange',
+  });
+
   const [loginUser] = useLoginMutation();
 
   async function onSubmit(data: LoginFormValues) {
-    const result = await loginUser(data);
+    try {
+      await loginUser(data).unwrap();
+    } catch (error) {
+      const apiError = error as FetchBaseQueryError;
+      let message = 'Не вдалося увійти. Спробуйте ще раз';
 
-    if ('data' in result && result.data) {
-      alert(`Ви успішно увійшли як ${result.data.email || data.email}!`);
-      reset();
-    } else {
-      alert('Помилка авторизації! Невірний email або пароль.');
+      if (apiError.status === 401) {
+        message = 'Неправильний email або пароль';
+      } else if (
+        apiError.status === 'FETCH_ERROR' ||
+        apiError.status === 'TIMEOUT_ERROR'
+      ) {
+        message = "Не вдалося з'єднатися із сервером";
+      }
+
+      setError('root', { message });
     }
   }
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit(onSubmit)}>
-      <h3>Авторизація</h3>
+    <form className="auth-form" noValidate onSubmit={handleSubmit(onSubmit)}>
+      <h3>Вхід</h3>
+
       <input
         className="auth-input"
         type="email"
         placeholder="user@gmail.com"
-        required
-        {...register('email')}
+        {...register('email', {
+          required: 'Введіть email',
+        })}
       />
+      {errors.email && <p>{errors.email.message}</p>}
+
       <input
         className="auth-input"
         type="password"
         placeholder="Ваш пароль"
-        required
-        {...register('password')}
+        {...register('password', {
+          required: 'Введіть пароль',
+        })}
       />
-      <button className="auth-button" type="submit">Увійти</button>
-</form>
+      {errors.password && <p>{errors.password.message}</p>}
+
+      {errors.root && <p>{errors.root.message}</p>}
+
+      <button className="auth-button" type="submit">
+        Увійти
+      </button>
+    </form>
   );
 }

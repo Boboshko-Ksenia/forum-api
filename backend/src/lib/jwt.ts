@@ -1,3 +1,4 @@
+import { createHash, randomUUID } from "crypto";
 import "dotenv/config"
 import jwt from "jsonwebtoken"
 
@@ -19,7 +20,8 @@ export function signRefreshToken(userId: number){
     return jwt.sign({type: "refresh"}, refreshTokenSecret!, {
         algorithm: "HS256",
         subject: String(userId),
-        expiresIn: "7d"
+        expiresIn: "7d",
+        jwtid: randomUUID()
     })
 }
 
@@ -53,4 +55,10 @@ export function verifyRefreshToken(token: string){
         console.log(error)
         throw new Error("INVALID_REFRESH_TOKEN")
     }
+}
+
+export function hashRefreshToken(token: string): string {
+    return createHash("sha256")
+        .update(token)
+        .digest("hex");
 }

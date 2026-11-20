@@ -1,4 +1,4 @@
-import { useGetPostsQuery } from './api/baseApi';
+import { useGetMeQuery, useGetPostsQuery } from './api/baseApi';
 import { Header } from './components/Header';
 import { PostList } from './components/PostList';
 import { RegisterForm } from './components/RegisterForm';
@@ -7,6 +7,7 @@ import './App.css';
 
 function App() {
   const { data: posts, isLoading, isError } = useGetPostsQuery();
+  const { data: user} = useGetMeQuery();
 
   if (isLoading) {
     return <h2>Posts loading</h2>;
@@ -18,14 +19,16 @@ function App() {
 
   return (
     <main>
-      <Header 
-        title="Forum" 
-        description="List of posts" 
-      />
-      <div className="auth-container">
-        <RegisterForm />
-        <LoginForm />
-      </div>
+      <Header title="Forum" description="List of posts" />
+
+      {user ? (
+        <p>Ви авторизовані як {user.email}</p>
+      ) : (
+        <div className="auth-container">
+          <LoginForm />
+          <RegisterForm />
+        </div>
+      )}
 
       {!posts || posts.length === 0 ? (
         <h2>No posts found</h2>
@@ -37,3 +40,4 @@ function App() {
 }
 
 export default App;
+
