@@ -1,12 +1,14 @@
-import { Router } from 'express'
-import type { createCategoryHandlers } from '../handlers/category/category.js'
+import { Router } from "express";
+import type { createCategoryHandlers } from "../handlers/category/category.js";
 
-export function createCategoryRouter(categoryHandlers: ReturnType<typeof createCategoryHandlers>) {
-    const categoryRouter = Router()
+export function createCategoryRouter(
+	categoryHandlers: ReturnType<typeof createCategoryHandlers>,
+) {
+	const categoryRouter = Router();
 
-    categoryRouter.get('/', categoryHandlers.getAllCategoriesHandler)
-    categoryRouter.get('/:id', categoryHandlers.getCategoryByIdHandler)
-    categoryRouter.post('/', categoryHandlers.createCategoryHandler)
+	categoryRouter.get("/", categoryHandlers.getAllCategoriesHandler);
+	categoryRouter.get("/:id", categoryHandlers.getCategoryByIdHandler);
+	categoryRouter.post("/", categoryHandlers.createCategoryHandler);
 
-    return categoryRouter
+	return categoryRouter;
 }

@@ -1,38 +1,56 @@
-import type { PublicUser } from "../../domain/user/entity"
+import type { PublicUser } from "../../domain/user/entity";
+import type { UserRepositoryContract } from "../../domain/user/repository";
+import type { RefreshSessionRepositoryContract } from "../../domain/refresh-session/repository";
 
 export interface UserInput {
-    email: string,
-    password: string
+	email: string;
+	password: string;
 }
 
 export interface PasswordHasherContract {
-    hashPassword: (password: string) => Promise<string>
-    verifyPassword: (hash: string, password: string) => Promise<boolean>
+	hashPassword: (password: string) => Promise<string>;
+	verifyPassword: (hash: string, password: string) => Promise<boolean>;
 }
 
-export interface TokenSignerContract {
-    signRefreshToken(id: number): string
-    signAccessToken: (userId: number) => string
-}
+// export interface TokenSignerContract {
+// 	signRefreshToken(id: number): string;
+// 	signAccessToken: (userId: number) => string;
+// }
 
-export interface TokenVerifierContract {
-    verifyAccessToken: (token: string) => number,
-    verifyRefreshToken: (token: string) => number
-}
+// export interface TokenVerifierContract {
+// 	verifyAccessToken: (token: string) => number;
+// 	verifyRefreshToken: (token: string) => number;
+// }
 
-export interface RefreshTokenHasherContract {
-    hashRefreshToken: (hash: string) => string;
-}
+// export interface RefreshTokenHasherContract {
+// 	hashRefreshToken: (hash: string) => string;
+// }
 
+export interface TokenServiceContract {
+	signAccessToken: (userId: number) => string;
+	signRefreshToken: (userId: number) => string;
+
+	verifyAccessToken: (token: string) => number;
+	verifyRefreshToken: (token: string) => number;
+
+	hashRefreshToken: (hash: string) => string;
+};
+
+export interface UserServiceDependencies {
+	repository: UserRepositoryContract,
+	refreshSessionRepository: RefreshSessionRepositoryContract,
+	passwordHasher: PasswordHasherContract,
+	tokenHasher: TokenServiceContract
+}
 export interface UserTokens {
-    accessToken: string,
-    refreshToken: string
+	accessToken: string;
+	refreshToken: string;
 }
 
 export interface UserServiceContract {
-    register: (data: UserInput) => Promise<PublicUser>,
-    login: (data: UserInput) => Promise<{user: PublicUser} & UserTokens>,
-    refresh: (refreshToken: string) => Promise<UserTokens>,
-    me: (id: number) => Promise<PublicUser>
-    logout: (refreshToken?: string) => Promise<void>
+	register: (data: UserInput) => Promise<PublicUser>;
+	login: (data: UserInput) => Promise<{ user: PublicUser } & UserTokens>;
+	refresh: (refreshToken: string) => Promise<UserTokens>;
+	me: (id: number) => Promise<PublicUser>;
+	logout: (refreshToken?: string) => Promise<void>;
 }
