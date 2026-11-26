@@ -1,3 +1,5 @@
+import type { Category } from "../category/category";
+
 export interface Post {
 	id: number;
 	name: string;
@@ -9,3 +11,5 @@ export interface Post {
 		name: string;
 	};
 }
+
+export type PostWithCategory = Post & { category: Category };

@@ -8,8 +8,12 @@ export function createPostHandlers(postService: PostService) {
 		getAllPostsHandler: async (req: Request, res: Response) => {
 			const { category, take } = req.query;
 			const parsedTake = take ? Number(take as string) : undefined;
+			const parsedCategory = category !== undefined ? Number(category) : undefined;
+			if (parsedCategory !== undefined && isNaN(parsedCategory)) {
+    			return res.status(400).json({ message: "Invalid category id" });
+			}
 			const posts = await postService.getAllPosts(
-				category as string | undefined,
+				parsedCategory,
 				parsedTake,
 			);
 			return res.status(200).json(posts);

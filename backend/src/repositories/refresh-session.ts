@@ -1,6 +1,6 @@
 import type { RefreshSessionRepositoryContract } from "../domain/refresh-session/repository.ts";
+import type { Database } from "../prisma/db.js";
 
-type Database = typeof import("../prisma/db.js").db;
 
 export function createRefreshSessionRepository(
 	db: Database,

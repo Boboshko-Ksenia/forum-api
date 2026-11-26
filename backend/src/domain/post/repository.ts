@@ -1,7 +1,13 @@
-import type { Post } from "./entity.js";
+import type { Post, PostWithCategory } from "./entity.js";
+import type { CreatePostInput } from "../../services/types.ts";
 
+export interface PostFilter {
+	take?: number | undefined;
+	categoryId?: number | undefined
+}
 export interface PostRepository {
-	getAllPosts(category?: string, take?: number): Promise<Post[]>;
-	getPostById(id: number): Promise<Post | null>;
-	createPost(post: Omit<Post, "id">): Promise<Post>;
+	getAllPosts(filter?: PostFilter): Promise<PostWithCategory[]>;
+	getPostById(id: number): Promise<PostWithCategory | null>;
+	createPost(post: CreatePostInput): Promise<Post>;
+	findPostByTitle: (title: string) => Promise<PostWithCategory | null>;
 }

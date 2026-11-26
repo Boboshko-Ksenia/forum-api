@@ -1,8 +1,7 @@
 import type { Category } from "../domain/category/category";
 import type { CategoryRepository } from "../domain/category/repository.js";
-import { db } from "../prisma/db";
-
-export function createCategoryRepository(db: any): CategoryRepository {
+import type { Database } from "../prisma/db.js";
+export function createCategoryRepository(db: Database): CategoryRepository {
 	async function getAllCategories(): Promise<Category[]> {
 		const categories = await db.orm.public.Category.all();
 		return categories as unknown as Category[];

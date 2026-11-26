@@ -1,84 +1,91 @@
 import { isStructuredError } from "@prisma/orm-postgres/utils";
-import type { Post } from "../domain/post/entity.js";
 import type { PostRepository } from "../domain/post/repository.js";
-import type { CreatePostInput } from "../services/types.js";
+import type { Database } from "../prisma/db.js";
 
-type Database = typeof import("../prisma/db.js").db;
-
-export function createPostRepository(db: Database): PostRepository {
-	async function getAllPosts(
-		categoryName?: string,
-		take?: number,
-	): Promise<Post[]> {
-		const query = db.orm.public.Post.include("category").include("author");
-		let result = await query.all();
-		result.forEach((post: any) => {
-			if (post.author) {
-				const { passwordHash, ...safeAuthor } = post.author;
-				post.author = safeAuthor;
-			}
-		});
-		if (categoryName) {
-			result = result.filter((post) => post.category?.name === categoryName);
-		}
-		if (take) {
-			result = result.slice(0, take);
-		}
-		return result as unknown as Post[];
-	}
-	async function getPostById(id: number): Promise<Post | null> {
-		const post = await db.orm.public.Post.include("category")
-			.include("author")
-			.where({ id })
-			.first();
-		if (post && (post as any).author) {
-			const { passwordHash, ...safeAuthor } = (post as any).author;
-			(post as any).author = safeAuthor;
-		}
-		return post as unknown as Post | null;
-	}
-	async function createPost(
-		post: Omit<Post, "id"> & { categoryId?: number; authorId?: number },
-	): Promise<Post> {
-		try {
-			const { categoryId, authorId, ...fields } = post;
-			const created = await db.orm.public.Post.create({
-				...fields,
-				categoryId: categoryId,
-				authorId: authorId,
-			} as any);
-			const postId =
-				(created as any).id ||
-				(Array.isArray(created) ? created[0]?.id : undefined);
-			const fullPost = await db.orm.public.Post.include("category")
+export function createPostRepository(
+	db: Database,
+): PostRepository {
+	return {
+		async getAllPosts(filter) {
+			const { take, categoryId } = filter ?? {};
+			const query = db.orm.public.Post.orderBy((post) => {
+				return post.id.asc();
+			})
+				.include("category")
 				.include("author")
-				.where({ id: postId })
+				.where({ categoryId });
+
+			if (!take) {
+			const posts = await query.all();
+			return posts.map((post) => ({ ...post, author: post.author.email }));
+			}
+
+		const posts = await query.limit(take).all();
+		return posts.map((post) => ({ ...post, author: post.author.email }));
+		},
+
+		async createPost(post) {
+			try {
+				const { categoryId, author, ...fields } = post;
+				void author;
+				const createdPost = await db.orm.public.Post.create({
+					...fields,
+					categoryId,
+				});
+
+				const postWithRelations = await db.orm.public.Post.where({
+					id: createdPost.id,
+				})
+					.include("category")
+					.include("author")
+					.first();
+
+				if (!postWithRelations) {
+					throw new Error("POST NOT FOUND");
+				}
+
+				return { ...postWithRelations, author: postWithRelations.author.email };
+			} catch (error) {
+				if (error instanceof Error && "sqlState" in error) {
+					if (error.sqlState === "23505") {
+						throw new Error("POST ALREADY EXIST");
+					}
+
+					if (
+						isStructuredError(error) &&
+						error.code === "ORM.RELATION_ROW_MISSING"
+					) {
+						throw new Error("CATEGORY NOT FOUND");
+					}
+				}
+				throw error;
+			}
+		},
+
+		async getPostById(id) {
+			const post = await db.orm.public.Post.where({ id })
+				.include("category")
+				.include("author")
 				.first();
-			if (fullPost && (fullPost as any).author) {
-				const { passwordHash, ...safeAuthor } = (fullPost as any).author;
-				(fullPost as any).author = safeAuthor;
+
+			if (!post) {
+				return null;
 			}
-			return fullPost as unknown as Post;
-		} catch (error: any) {
-			if (error instanceof Error && "sqlState" in error) {
-				if (error.sqlState === "23505") {
-					throw new Error("POST ALREADY EXIST");
-				}
-				if (
-					error.sqlState === "23503" ||
-					(error.message && error.message.includes("foreign key constraint"))
-				) {
-					throw new Error("CATEGORY NOT FOUND");
-				}
-				if (
-					isStructuredError(error) &&
-					error.code === "ORM.RELATION.ROW.MISSING"
-				) {
-					throw new Error("CATEGORY NOT FOUND");
-				}
+
+			return { ...post, author: post.author.email };
+		},
+
+		async findPostByTitle(title) {
+			const post = await db.orm.public.Post.where({ name: title })
+				.include("category")
+				.include("author")
+				.first();
+
+			if (!post) {
+				return null;
 			}
-			throw error;
-		}
-	}
-	return { getAllPosts, getPostById, createPost };
+
+			return { ...post, author: post.author.email };
+		},
+	};
 }
