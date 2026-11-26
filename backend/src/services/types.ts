@@ -17,9 +17,9 @@ export interface Post {
 }
 export type CreatePostInput = Omit<Post, "id" | "category">;
 export interface PostService {
-	getAllPosts(category?: string, take?: number): Promise<Post[]>;
+	getAllPosts(categoryId?: number, take?: number): Promise<Post[]>;
 	getPostById(id: number): Promise<Post | null>;
-	createPost(post: CreatePostInput): Promise<Post>;
+	createPost(post: CreatePostInput): Promise<Post | null>;
 }
 export interface CategoryService {
 	getAllCategories(): Promise<Category[]>;
